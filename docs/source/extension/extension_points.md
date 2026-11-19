@@ -1219,6 +1219,39 @@ const plugin: JupyterFrontEndPlugin<void> = {
 For an example of an inline completion provider with streaming support, see
 [jupyterlab-transformers-completer](https://github.com/krassowski/jupyterlab-transformers-completer).
 
+## Contextual Help
+
+The contextual help panel, available from **Help → Show Contextual Help**,
+displays information about the current widget. An extension can provide that
+information through the `IInspector` token from `@jupyterlab/inspector`.
+
+Add the token to the `requires` list of your plugin and assign an inspectable
+source to `inspector.source`:
+
+```typescript
+import { IInspector } from '@jupyterlab/inspector';
+
+const plugin: JupyterFrontEndPlugin<void> = {
+  id: 'my-extension:contextual-help',
+  autoStart: true,
+  requires: [IInspector],
+  activate: (app: JupyterFrontEnd, inspector: IInspector) => {
+    inspector.source = myInspectable;
+  }
+};
+```
+
+The source implements `IInspector.IInspectable`:
+
+- `inspected` emits an `IInspectorUpdate` whose `content` is the widget to
+  display in the panel.
+- `cleared` removes the current content.
+- `disposed` is emitted when the source is disposed.
+- `standby` is set by the inspector to indicate whether the panel is visible,
+  so the source can avoid work while it is hidden.
+- `onEditorChange` is called when the text of the active editor changes, with
+  an optional custom text.
+
 ## State Database
 
 The state database can be accessed by importing {ts:interface}`statedb.IStateDB` from
